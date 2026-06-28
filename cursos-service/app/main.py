@@ -1,35 +1,59 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+
+from database import Base, engine, SessionLocal
+import models
 from schemas import Curso
 
 app = FastAPI()
 
-cursos = []
+Base.metadata.create_all(bind=engine)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 @app.get("/")
-def inicio():
-    return {"mensaje": "API cursos funcionando"}
-
-@app.get("/cursos")
-def listar():
-    return cursos
+def home():
+    return {"mensaje": "API Cursos funcionando"}
 
 @app.post("/cursos")
-def crear(curso: Curso):
-    cursos.append(curso)
-    return curso
+def crear(curso: Curso, db: Session = Depends(get_db)):
+    nuevo = models.Curso(**curso.dict(exclude={"id"}))
+    db.add(nuevo)
+    db.commit()
+    db.refresh(nuevo)
+    return nuevo
+
+@app.get("/cursos")
+def listar(db: Session = Depends(get_db)):
+    return db.query(models.Curso).all()
 
 @app.put("/cursos/{id}")
-def actualizar(id: int, nuevo: Curso):
-    for i in range(len(cursos)):
-        if cursos[i].id == id:
-            cursos[i] = nuevo
-            return {"mensaje": "actualizado"}
-    return {"mensaje": "no encontrado"}
+def actualizar(id: int, curso: Curso, db: Session = Depends(get_db)):
+    db_curso = db.query(models.Curso).filter(models.Curso.id == id).first()
+
+    if not db_curso:
+        return {"mensaje": "no encontrado"}
+
+    db_curso.codigo = curso.codigo
+    db_curso.nombre = curso.nombre
+    db_curso.creditos = curso.creditos
+    db_curso.docente = curso.docente
+
+    db.commit()
+    return {"mensaje": "actualizado"}
 
 @app.delete("/cursos/{id}")
-def eliminar(id: int):
-    for i in range(len(cursos)):
-        if cursos[i].id == id:
-            cursos.pop(i)
-            return {"mensaje": "eliminado"}
-    return {"mensaje": "no encontrado"}
+def eliminar(id: int, db: Session = Depends(get_db)):
+    db_curso = db.query(models.Curso).filter(models.Curso.id == id).first()
+
+    if not db_curso:
+        return {"mensaje": "no encontrado"}
+
+    db.delete(db_curso)
+    db.commit()
+    return {"mensaje": "eliminado"}
