@@ -23,7 +23,6 @@ def home():
     return {"mensaje": "API Cursos funcionando"}
 
 
-# CREATE
 @app.post("/cursos", response_model=CursoResponse)
 def crear(curso: CursoCreate, db: Session = Depends(get_db)):
     nuevo = models.Curso(**curso.model_dump())
@@ -33,13 +32,13 @@ def crear(curso: CursoCreate, db: Session = Depends(get_db)):
     return nuevo
 
 
-# READ ALL
+
 @app.get("/cursos", response_model=list[CursoResponse])
 def listar(db: Session = Depends(get_db)):
     return db.query(models.Curso).all()
 
 
-# READ ONE
+
 @app.get("/cursos/{id}", response_model=CursoResponse)
 def obtener(id: int, db: Session = Depends(get_db)):
     curso = db.query(models.Curso).filter(models.Curso.id == id).first()
@@ -50,7 +49,7 @@ def obtener(id: int, db: Session = Depends(get_db)):
     return curso
 
 
-# UPDATE
+
 @app.put("/cursos/{id}", response_model=CursoResponse)
 def actualizar(id: int, curso: CursoUpdate, db: Session = Depends(get_db)):
     db_curso = db.query(models.Curso).filter(models.Curso.id == id).first()
@@ -67,7 +66,7 @@ def actualizar(id: int, curso: CursoUpdate, db: Session = Depends(get_db)):
     return db_curso
 
 
-# DELETE
+
 @app.delete("/cursos/{id}")
 def eliminar(id: int, db: Session = Depends(get_db)):
     db_curso = db.query(models.Curso).filter(models.Curso.id == id).first()

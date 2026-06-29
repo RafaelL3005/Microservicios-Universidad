@@ -11,10 +11,10 @@ from app.schemas import (
 
 app = FastAPI()
 
-# crear tablas
+
 Base.metadata.create_all(bind=engine)
 
-# dependencia DB
+
 def get_db():
     db = SessionLocal()
     try:
@@ -28,7 +28,7 @@ def home():
     return {"mensaje": "API Estudiantes funcionando"}
 
 
-# ---------------- CREATE
+
 @app.post("/estudiantes", response_model=EstudianteResponse)
 def crear(estudiante: EstudianteCreate, db: Session = Depends(get_db)):
     nuevo = models.Estudiante(**estudiante.model_dump())
@@ -38,13 +38,13 @@ def crear(estudiante: EstudianteCreate, db: Session = Depends(get_db)):
     return nuevo
 
 
-# ---------------- READ ALL
+
 @app.get("/estudiantes", response_model=list[EstudianteResponse])
 def listar(db: Session = Depends(get_db)):
     return db.query(models.Estudiante).all()
 
 
-# ---------------- READ ONE
+
 @app.get("/estudiantes/{id}", response_model=EstudianteResponse)
 def obtener(id: int, db: Session = Depends(get_db)):
     est = db.query(models.Estudiante).filter(models.Estudiante.id == id).first()
@@ -55,7 +55,6 @@ def obtener(id: int, db: Session = Depends(get_db)):
     return est
 
 
-# ---------------- UPDATE
 @app.put("/estudiantes/{id}", response_model=EstudianteResponse)
 def actualizar(id: int, estudiante: EstudianteUpdate, db: Session = Depends(get_db)):
     db_est = db.query(models.Estudiante).filter(models.Estudiante.id == id).first()
@@ -73,7 +72,7 @@ def actualizar(id: int, estudiante: EstudianteUpdate, db: Session = Depends(get_
     return db_est
 
 
-# ---------------- DELETE
+
 @app.delete("/estudiantes/{id}")
 def eliminar(id: int, db: Session = Depends(get_db)):
     db_est = db.query(models.Estudiante).filter(models.Estudiante.id == id).first()

@@ -1,23 +1,20 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-# ---------------- CREATE (POST)
 class EstudianteCreate(BaseModel):
-    codigo: str
-    nombres: str
-    apellidos: str
-    correo: str
-    carrera: str
+    codigo: str = Field(min_length=2, max_length=10)
+    nombres: str = Field(min_length=2)
+    apellidos: str = Field(min_length=2)
+    correo: EmailStr
+    carrera: str = Field(min_length=3)
 
 
-# ---------------- UPDATE (PUT)
 class EstudianteUpdate(BaseModel):
-    nombres: str
-    apellidos: str
-    correo: str
-    carrera: str
+    nombres: str = Field(min_length=2)
+    apellidos: str = Field(min_length=2)
+    correo: EmailStr
+    carrera: str = Field(min_length=3)
 
 
-# ---------------- RESPONSE
 class EstudianteResponse(BaseModel):
     id: int
     codigo: str
